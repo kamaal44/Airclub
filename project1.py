@@ -7,15 +7,16 @@ class DBConn:
     
     def __init__(self):
         self.connString()
-        print('Polaczenie ustanowione')
+        print('    __!__')
+        print('_____(_)_____')
+        print('   !  !  !     \t\tWitaj, pilocie!\n')
         #logowanie uzytkownika
         id = str(self.login())
         perm = self.checkPerm(id)
         pilotInstrID = self.welcome(perm, id)
-        print(pilotInstrID)
         if(perm == 1):
             while(True):
-                dec = input('1. Pokaż wszystkie loty, 2. Usuń lot, 3. Dodaj lot, 4. Wyjdź')
+                dec = input('\n1. Pokaż wszystkie loty     ____       _\n2. Usuń lot \t\t  |__\_\_o,___/ \ \n3. Dodaj lot \t\t ([___\_\_____-\' \n4. Wyjdź \t\t  | o`\n')
                 if(dec == '1'):
                     self.selectAll()
                 elif(dec == '2'):
@@ -29,7 +30,7 @@ class DBConn:
                     print('Nieprawidłowy wybór')
         elif(perm == 0):
             while(True):
-                dec = input('1. Pokaż moje loty, 2. Wyjdź')
+                dec = input('\n1. Pokaż moje loty\t       __|__ \n2. Wyjdź \t\t--@--@--(_)--@--@-- \n')
                 if(dec == '1'):
                     self.select(pilotInstrID)
                 elif(dec == '2'):
@@ -40,11 +41,16 @@ class DBConn:
             print('Błąd logowania')
                  
     def login(self):
-        mail = input('podaj maila: ')
-        passwd = input('podaj haslo: ')
-        self.c.execute('SELECT ID FROM loginInfo WHERE email=%s AND password=%s', (mail, passwd))
-        id = (self.c.fetchall()[0][0])
-        return id
+        try:
+            mail = input('Podaj login: ')
+            passwd = input('Podaj hasło: ')
+            self.c.execute('SELECT ID FROM loginInfo WHERE email=%s AND password=%s', (mail, passwd))
+            id = (self.c.fetchall()[0][0])
+            return id
+        except:
+            print('Nieprawidłowe dane')
+            self.__init__()
+            
     
     def checkPerm(self, id):
         logID = id
@@ -62,7 +68,7 @@ class DBConn:
             for row in self.c.fetchall():
                 firstName = row[0]
                 lastName = row[1]
-            print("Zalogowano jako instruktor %s %s. Witaj!" % (firstName, lastName))
+            print("\n\tZalogowano jako instruktor %s %s." % (firstName, lastName))
             self.c.execute('SELECT ID FROM instructors WHERE loginID=%s', (logID))
             pilotInstrID = self.c.fetchall()[0][0]
         else:
@@ -70,7 +76,7 @@ class DBConn:
             for row in self.c.fetchall():
                 firstName = row[0]
                 lastName = row[1]
-            print("Zalogowano jako pilot %s %s. Witaj!" % (firstName, lastName))
+            print("\n\tZalogowano jako pilot %s %s." % (firstName, lastName))
             self.c.execute('SELECT ID FROM pilots WHERE loginID=%s', (logID))
             pilotInstrID = self.c.fetchall()[0][0] 
         return pilotInstrID
@@ -82,7 +88,7 @@ class DBConn:
         
     def selectAll(self):
         self.c.execute('SELECT * FROM vlogs ORDER BY `Flight ID`;')
-        #print(self.c.fetchall())
+        print('%3s %11s %5s %12s %12s %9s %7s %9s' % ("ID", "Data", "Czas", "Pilot", "Instruktor", "Samolot", "Start", "Lądowanie \n____________________________________________________________________________"))
         for row in self.c.fetchall():
             """
             Flight ID = row[0]
@@ -94,51 +100,64 @@ class DBConn:
             Take off = row[6]
             Landing = row[7]
             """
-            print('%3s %11s %4s %12s %9s %11s %5s %5s' % (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
+            print('%3s %11s %5s %12s %12s %9s %7s %9s' % (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
             
     def select(self, pilotInstrID):
         id = pilotInstrID
         self.c.execute('SELECT * FROM vlogs WHERE Pilot=(SELECT lastName from pilots WHERE ID=%s)', (id))
+        print('%11s %5s %12s %12s %9s %7s %9s' % ("Data", "Czas", "Pilot", "Instruktor", "Samolot", "Start", "Lądowanie \n________________________________________________________________________"))
         for row in self.c.fetchall():
-            print('%10s %6s %12s %12s %11s %5s %5s' % (row[1], row[2], row[3], row[4], row[5], row[6], row[7]))    
+            print('%11s %5s %12s %12s %9s %7s %9s' % (row[1], row[2], row[3], row[4], row[5], row[6], row[7]))    
             
     def delete(self):
         try:
-            id = input('Wpisz ID lotu do usunięcia')
+            id = input('\nWpisz ID lotu, który chcesz usunąć\n')
             self.c.execute('DELETE FROM logs WHERE id=%s;', (id))
             #polecenia wprowadzajace zmiany trzeba commitowac
             self.conn.commit()
             self.selectAll()
-            print('Usunięto lot o ID=%s' % (id))
+            print('\nUsunięto lot o ID=%s' % (id))
         except:
             print('Błędne ID')
             
     def insert(self):
         try:
-            date = input("Podaj datę lotu (np. 2018-03-10)")
+            date = input("\nPodaj datę lotu, YYYY-MM-DD\t")
             
-            flightTime = input("Podaj czas lotu w godzinach (np. 1.5)")
+            flightTime = input("\nPodaj czas lotu w godzinach\t")
             
             self.c.execute('SELECT ID, firstName, lastName, birthday, totalTime FROM pilots')
+            print('\n\t\t   PILOCI\n')
+            print('%3s %12s %12s %12s %6s' % ("ID", "Imię", "Nazwisko", "Data ur.", "Nalot"))
+            print('________________________________________________')
             for row in self.c.fetchall():
                 print('%3s %12s %12s %12s %6s' % (row[0], row[1], row[2], row[3], row[4]))
-            pilotID = input("Podaj ID pilota")
+            pilotID = input("\nPodaj ID pilota\t\t\t")
             
             self.c.execute('SELECT ID, firstName, lastName, birthday, totalTime FROM instructors')
+            print('\n\t\tINSTRUKTORZY\n')
+            print('%3s %12s %12s %12s %6s' % ("ID", "Imię", "Nazwisko", "Data ur.", "Nalot"))
+            print('_________________________________________________')
             for row in self.c.fetchall():
                 print('%3s %12s %12s %12s %6s' % (row[0], row[1], row[2], row[3], row[4]))
-            instrID = input("Podaj ID instruktora")            
+            instrID = input("\nPodaj ID instruktora\t\t")            
             
             self.c.execute('SELECT ID, type, tailNumber FROM aircraft')
+            print('\n\t\tSTATKI POWIETRZNE\n')
+            print('%3s %22s %14s' % ("ID", "Typ", "Numer"))
+            print('__________________________________________')
             for row in self.c.fetchall():
-                print('%3s %18s %8s' % (row[0], row[1], row[2]))
-            aircraftID = input("Podaj ID statku powietrznego")
+                print('%3s %22s %14s' % (row[0], row[1], row[2]))
+            aircraftID = input("\nPodaj ID statku powietrznego\t")
             
             self.c.execute('SELECT ID, code, city, country FROM airports')
+            print('\n\t\tLOTNISKA\n')
+            print('%3s %5s %20s %10s' % ("ID", "Kod", "Miasto", "Kraj"))
+            print('__________________________________________')
             for row in self.c.fetchall():
-                print('%3s %5s %10s %10s' % (row[0], row[1], row[2], row[3]))
-            takeOffID = input("Podaj ID lotniska startu")
-            landingID = input("Podaj ID lotniska lądowania")
+                print('%3s %5s %20s %10s' % (row[0], row[1], row[2], row[3]))
+            takeOffID = input("\nPodaj ID lotniska startu\t")
+            landingID = input("\nPodaj ID lotniska lądowania\t")
             
             self.c.execute('INSERT INTO logs (date, flightTime, pilotsID, instructorsID, aircraftID, takeOffAirportsID, landAirportsID) VALUES (%s, %s, %s, %s, %s, %s, %s);' ,(date, flightTime, pilotID, instrID, aircraftID, takeOffID, landingID))
             self.conn.commit()
@@ -151,10 +170,15 @@ class DBConn:
                 print('%3s %11s %4s %12s %9s %11s %5s %5s' % (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
                 print("Dodano lot o ID = %s!" % (logID))
         except:
-            print('Podałeś niepoprawne dane')
+            print('Podano niepoprawne dane')
             
     def connClose(self):
         self.conn.close()
-        
+        print("\n\t\tDziękuję! Połączenie zamknięte.")
+        while(True):
+            dec = input('\nNaciśnij 1, by się zalogować\n')
+            if(dec == '1'):
+                self.__init__()
+             
 db = DBConn()
 
