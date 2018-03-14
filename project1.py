@@ -15,7 +15,7 @@ class DBConn:
         print(pilotInstrID)
         if(perm == 1):
             while(True):
-                dec = input('1. Pokaż wszystkie loty, 2. Usuń lot, 3. Zapisz lot, 4. Wyjdź')
+                dec = input('1. Pokaż wszystkie loty, 2. Usuń lot, 3. Dodaj lot, 4. Wyjdź')
                 if(dec == '1'):
                     self.selectAll()
                 elif(dec == '2'):
@@ -81,7 +81,7 @@ class DBConn:
         self.c = self.conn.cursor()
         
     def selectAll(self):
-        self.c.execute('SELECT * FROM vlogs;')
+        self.c.execute('SELECT * FROM vlogs ORDER BY `Flight ID`;')
         #print(self.c.fetchall())
         for row in self.c.fetchall():
             """
@@ -104,11 +104,12 @@ class DBConn:
             
     def delete(self):
         try:
-            id = int(input('ID lotu do usunięcia'))
-            self.c.execute('DELETE FROM logs WHERE id=%s;', id)
+            id = input('Wpisz ID lotu do usunięcia')
+            self.c.execute('DELETE FROM logs WHERE id=%s;', (id))
             #polecenia wprowadzajace zmiany trzeba commitowac
             self.conn.commit()
-            self.select()
+            self.selectAll()
+            print('Usunięto lot o ID=%s' % (id))
         except:
             print('Błędne ID')
             
