@@ -116,7 +116,7 @@ class DBConn:
             #polecenia wprowadzajace zmiany trzeba commitowac
             self.conn.commit()
             self.selectAll()
-            print('\nUsunięto lot o ID=%s' % (id))
+            print('\n░░░░░░░░░░░░░░░░░░ Usunięto lot o ID=%s ░░░░░░░░░░░░░░░░░░' % (id))
         except:
             print('Błędne ID')
             
@@ -167,8 +167,8 @@ class DBConn:
             
             self.c.execute('SELECT * FROM vlogs WHERE `Flight ID`=%s', (logID))
             for row in self.c.fetchall():
+                print("\n\n░░░░░░░░░░░░░░░░░░ Dodano lot o ID = %s! ░░░░░░░░░░░░░░░░░░" % (logID))
                 print('%3s %11s %4s %12s %9s %11s %5s %5s' % (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
-                print("Dodano lot o ID = %s!" % (logID))
         except:
             print('Podano niepoprawne dane')
             
