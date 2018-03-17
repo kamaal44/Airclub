@@ -1,5 +1,5 @@
 import pymysql
-# -*- coding: utf-8 -*-
+#-*- coding: utf-8 -*-
 
 
 class DBConn:
@@ -83,7 +83,7 @@ class DBConn:
 
     
     def connString(self):
-        self.conn = pymysql.connect('localhost', 'testowy', 'password', 'airclub')
+        self.conn = pymysql.connect('localhost', 'testowy', 'password', 'airclub', charset='utf8', use_unicode=True)
         self.c = self.conn.cursor()
         
     def selectAll(self):
